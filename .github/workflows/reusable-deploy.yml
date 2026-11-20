@@ -1,0 +1,54 @@
+
+name: Reusable Azure Storage Deployment
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target }}
+
+    concurrency:
+      group: storage-${{ inputs.target }}
+      cancel-in-progress: false
+
+    env:
+      SUFFIX: ${{ vars.STORAGE_SUFFIX }}
+      LOCATION: ${{ vars.AZURE_LOCATION }}
+      RG_PREFIX: rg-lab12-p27
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login using OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Verify Azure login
+        run: az account show -o table
+
+      - name: Deploy Azure Storage
+        run: |
+          bash scripts/deploy.sh "${{ inputs.target }}"
+
+      - name: Verify deployment
+        run: |
+          bash scripts/verify.sh "${{ inputs.target }}"
+
+      - name: Deployment summary
+        run: |
+          echo "## Deployment completed" >> "$GITHUB_STEP_SUMMARY"
+          echo "Environment: ${{ inputs.target }}" >> "$GITHUB_STEP_SUMMARY"
