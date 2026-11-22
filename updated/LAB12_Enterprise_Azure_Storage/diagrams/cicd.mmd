@@ -1,0 +1,8 @@
+flowchart LR
+  G[GitHub Push / Manual Dispatch] --> V[Validate Bicep and Python]
+  V --> O[GitHub OIDC Token]
+  O --> E[Microsoft Entra Federated Credential]
+  E --> R[Azure RBAC]
+  R --> D[Deploy Bicep]
+  D --> C[Verify Storage Resources]
+  C --> X[Review Evidence and Costs]

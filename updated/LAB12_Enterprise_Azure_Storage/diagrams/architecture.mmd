@@ -1,0 +1,17 @@
+flowchart LR
+  U[Student / Operator] --> P[Local Flask Lab Portal]
+  P --> I[Microsoft Entra ID / DefaultAzureCredential]
+  P --> B[Azure Blob Storage: documents]
+  P --> Q[Azure Queue Storage: workitems]
+  P --> T[Azure Table Storage: LabInventory]
+  A[Azure CLI + Bicep] -. deploy .-> S[StorageV2 Account]
+  S --> B
+  S --> Q
+  S --> T
+  S --> F[Azure Files: teamfiles SMB]
+  S --> L[Lifecycle + Versioning + Soft Delete]
+  A -. optional .-> D[Azure Managed Disk]
+  A -. optional .-> PE[Private Endpoint + Private DNS]
+  PE --> B
+  classDef storage fill:#e7f3ff,stroke:#0078d4,color:#122b49
+  class B,Q,T,F,S storage
